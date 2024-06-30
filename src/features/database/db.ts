@@ -13,32 +13,23 @@ const pool = new pg.Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000
 });
-
 pool.on('error', (e) => logger.error(e));
-
-function* serial() {
-  let i = 0;
-  while (true) {
-    yield ++i;
-  }
-}
-
 export const db = pool;
-// export const query = pool.query.bind(pool);
 
 /**
  * С нумероваными параметрами типа $1, $2 работать неудобно
  * Сделаем свой вариант со знаком вопроса без индекса
  * Пример: 'select * from user where id = ? limit ?' => 'select * from user where id = $1 limit $2'
  */
-export const query = (text: string, values?: any[]) => {
+export function query(text: string, values?: any[]) {
   const s = serial();
   const query = text.replace(/\?/g, () => `$${s.next().value}`);
 
   logger.debug(query);
 
   return pool.query(query, values);
-};
+}
+// export const query = pool.query.bind(pool);
 
 /**
  * Для миграций лучше использовать отдельный инструмент.
@@ -81,5 +72,12 @@ async function getCurrentDbVersion(): Promise<number> {
     return 0;
   } catch (e) {
     return 0;
+  }
+}
+
+function* serial() {
+  let i = 0;
+  while (true) {
+    yield ++i;
   }
 }
