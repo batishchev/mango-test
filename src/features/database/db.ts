@@ -53,7 +53,7 @@ export async function migrate() {
   // Не оборачиваем в try/catch,
   // т.к. скорее всего мы не хотим работать с несоответствующей схемой приложения
   // Читаем файл синхронно целиком в оперативную память, т.к. query принимает только текст
-  // Было-бы хорошо научить query принимать Readable Stream
+  // Было-бы хорошо научить query принимать Readable Stream и делать pipe в query
   for (let i = 0; i < migrations.length; i++) {
     await query(fs.readFileSync(path.join(migrationDir, migrations[i]), { encoding: 'utf-8' }));
     await query('UPDATE info SET version = $1', [version + i + 1]);
