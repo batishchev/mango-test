@@ -20,7 +20,6 @@ services:
       PG_DATABASE: mango
       REDIS_ADDRESS: redis://redis:6379
     depends_on:
-      #     - mango-nginx - можно добавить Nginx как reverse-proxy
       - mango-redis
       - mango-postgres
     links:
@@ -32,8 +31,8 @@ services:
   mango-redis:
     image: redis:alpine
     container_name: mango-redis
-  #   ports:
-  #     - 6379:6379
+#   ports:
+#     - 6379:6379
 
   # Postgres
   # Порты наружу не открываем
@@ -49,13 +48,17 @@ services:
 #   ports:
 #     - 5432:5432
 
-# Можно поднять nginx как reverse proxy
-# mango-nginx:
-#   image: nginx:stable-alpine-slim
-#   container_name: mango-nginx
-#   ports:
-#     - '80:80'
-#   # - "443:443" - production on HTTPS
-#   volumes:
-#     - ./build/nginx/config:/etc/nginx:ro
-#     # - ./build/nginx/cert:/cert:ro - cert for HTTPS
+#  # Можно поднять nginx как reverse proxy
+#  mango-nginx:
+#    image: nginx:stable-alpine-slim
+#    container_name: mango-nginx
+#    ports:
+#      - 80:80
+##     - 443:443 - for HTTPS
+#    volumes:
+#      - ./build/nginx/config:/etc/nginx:ro
+##     - ./build/nginx/cert:/cert:ro - cert for HTTPS
+#    depends_on:
+#      - mango-backend
+#    links:
+#      - 'mango-backend:backend'
