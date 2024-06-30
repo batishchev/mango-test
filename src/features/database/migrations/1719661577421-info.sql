@@ -1,0 +1,2 @@
+CREATE TABLE IF NOT EXISTS info (version INTEGER);
+INSERT INTO info (version) VALUES (0);

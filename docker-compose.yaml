@@ -1,0 +1,61 @@
+version: '2.0'
+
+volumes:
+  postgres-volume:
+
+services:
+  mango-backend:
+    build:
+      context: .
+      dockerfile: ./build/backend/Dockerfile
+    container_name: mango-backend
+    ports:
+      - 8000:8000
+    environment:
+      PORT: 8000
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: postgres
+      PG_PASSWORD: postgres
+      PG_DATABASE: mango
+      REDIS_ADDRESS: redis://redis:6379
+    depends_on:
+      #     - mango-nginx - можно добавить Nginx как reverse-proxy
+      - mango-redis
+      - mango-postgres
+    links:
+      - 'mango-postgres:postgres'
+      - 'mango-redis:redis'
+
+  # Redis
+  # Порты наружу не открываем
+  mango-redis:
+    image: redis:alpine
+    container_name: mango-redis
+  #   ports:
+  #     - 6379:6379
+
+  # Postgres
+  # Порты наружу не открываем
+  mango-postgres:
+    image: postgres:12.19-alpine
+    container_name: mango-postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+      - ./build/postgresql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+#   ports:
+#     - 5432:5432
+
+# Можно поднять nginx как reverse proxy
+# mango-nginx:
+#   image: nginx:stable-alpine-slim
+#   container_name: mango-nginx
+#   ports:
+#     - '80:80'
+#   # - "443:443" - production on HTTPS
+#   volumes:
+#     - ./build/nginx/config:/etc/nginx:ro
+#     # - ./build/nginx/cert:/cert:ro - cert for HTTPS

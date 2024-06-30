@@ -1,0 +1,3 @@
+build/nginx
+node_modules
+src/**/*.js
